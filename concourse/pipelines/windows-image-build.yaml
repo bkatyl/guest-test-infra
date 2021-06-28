@@ -137,7 +137,7 @@ jobs:
   plan:
   - get: compute-image-tools
   - get: guest-test-infra
-  - task: generate-build-id
+  - task: generate-build-ids-windows
     file: guest-test-infra/concourse/tasks/generate-build-ids-windows.yaml
     vars:
       prefix: "windows-server-20h2-dc-core"
@@ -179,7 +179,7 @@ jobs:
   plan:
   - get: compute-image-tools
   - get: guest-test-infra
-  - task: generate-build-id
+  - task: generate-build-ids-windows
     file: guest-test-infra/concourse/tasks/generate-build-ids-windows.yaml
     vars:
       prefix: "windows-server-2004-dc-core"
@@ -221,7 +221,7 @@ jobs:
   plan:
   - get: compute-image-tools
   - get: guest-test-infra
-  - task: generate-build-id
+  - task: generate-build-ids-windows
     file: guest-test-infra/concourse/tasks/generate-build-ids-windows.yaml
     vars:
       prefix: "windows-server-2019-dc"
@@ -263,7 +263,7 @@ jobs:
   plan:
   - get: compute-image-tools
   - get: guest-test-infra
-  - task: generate-build-id
+  - task: generate-build-ids-windows
     file: guest-test-infra/concourse/tasks/generate-build-ids-windows.yaml
     vars:
       prefix: "windows-server-2019-dc-core"
@@ -305,7 +305,7 @@ jobs:
   plan:
   - get: compute-image-tools
   - get: guest-test-infra
-  - task: generate-build-id
+  - task: generate-build-ids-windows
     file: guest-test-infra/concourse/tasks/generate-build-ids-windows.yaml
     vars:
       prefix: "windows-server-2016-dc"
@@ -347,7 +347,7 @@ jobs:
   plan:
   - get: compute-image-tools
   - get: guest-test-infra
-  - task: generate-build-id
+  - task: generate-build-ids-windows
     file: guest-test-infra/concourse/tasks/generate-build-ids-windows.yaml
     vars:
       prefix: "windows-server-2016-dc-core"
@@ -389,7 +389,7 @@ jobs:
   plan:
   - get: compute-image-tools
   - get: guest-test-infra
-  - task: generate-build-id
+  - task: generate-build-ids-windows
     file: guest-test-infra/concourse/tasks/generate-build-ids-windows.yaml
     vars:
       prefix: "windows-server-2012-r2-dc"
@@ -431,7 +431,7 @@ jobs:
   plan:
   - get: compute-image-tools
   - get: guest-test-infra
-  - task: generate-build-id
+  - task: generate-build-ids-windows
     file: guest-test-infra/concourse/tasks/generate-build-ids-windows.yaml
     vars:
       prefix: "windows-server-2012-r2-dc-core"
