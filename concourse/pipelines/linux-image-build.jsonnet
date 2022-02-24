@@ -156,13 +156,13 @@ local ELImgBuildJob(image, workflow) = imgbuildjob {
       config: gcp_secret_manager.getsecrettask { secret_name: isopath },
     },
     {
-      load_var: 'iso_secret',
+      load_var: 'iso-secret',
       file: 'gcp-secret-manager/' + isopath,
     },
   ],
 
   // Override build_task with an EL specific task.
-  build_task: ELImgBuildTask(workflow, '((.:gcs-url))', '((.:iso_secret))'),
+  build_task: ELImgBuildTask(workflow, '((.:gcs-url))', '((.:iso-secret))'),
 };
 
 local RHUAImgBuildJob(image, workflow) = imgbuildjob {
