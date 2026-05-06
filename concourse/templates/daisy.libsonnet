@@ -9,7 +9,7 @@
     ],
 
     project:: 'gce-image-builder',
-    zone:: if std.member(task.machine_type, 'c4a') then 'northamerica-northeast1-b' else 'us-central1-a',
+    zone:: 'us-central1-a',
     vars:: [],
     workflow:: error 'must set workflow in daisy template',
     workflow_prefix:: 'compute-image-tools/daisy_workflows/',
