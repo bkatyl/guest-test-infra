@@ -9,6 +9,13 @@ local lego = import '../templates/lego.libsonnet';
 local envs = ['testing'];
 local underscore(input) = std.strReplace(input, '-', '_');
 
+local build_zones = ['us-central1-b', 'europe-west1-b', 'europe-west4-b', 'asia-east1-a'];
+local arm_build_zones = ['europe-west4-a', 'europe-west4-b'];
+local string_hash(s) = std.foldl(function(acc, c) acc + std.codepoint(c), std.stringChars(s), 0);
+local get_zone(image) =
+  local zones = if std.member(image, '-arm64') then arm_build_zones else build_zones;
+  zones[std.mod(string_hash(image), std.length(zones))];
+
 local trim_strings(s, trim) =
   if std.length(trim) == 0 then
     s
@@ -22,7 +29,7 @@ local imgbuildtask = daisy.daisyimagetask {
 };
 
 local prepublishtesttask = common.imagetesttask {
-  zones: ['us-west1-a', 'us-west1-b', 'us-west1-c'],
+  zones: ['us-west1-a', 'us-west1-c'],
   filter: '(shapevalidation)',
   extra_args: [ '-shapevalidation_test_filter=^(([A-Z][0-3])|(N4))' ],
 };
@@ -34,6 +41,7 @@ local imgbuildjob = {
 
   image:: error 'must set image in imgbuildjob',
   image_prefix:: self.image,
+  zone:: get_zone(self.image),
   workflow_dir:: error 'must set workflow_dir in imgbuildjob',
   workflow::
     if tl.use_dynamic_template then
@@ -42,6 +50,7 @@ local imgbuildjob = {
       '%s/%s.wf.json' % [tl.workflow_dir, underscore(tl.image)],
   build_task:: imgbuildtask {
     workflow: tl.workflow,
+    zone: tl.zone,
     vars+: ['google_cloud_repo=stable'],
   },
   extra_tasks:: [],
@@ -281,9 +290,7 @@ local rhelimgbuildjob = imgbuildjob {
       'is_arm=' + std.toString(tl.is_arm),
       'is_byos=' + std.toString(tl.is_byos),
       'is_lvm=' + std.toString(tl.is_lvm),
-      'is_oot_driver=' + std.toString(tl.is_oot_driver),
       'is_sap=' + std.toString(tl.is_sap),
-      'is_unsigned_oot_driver=' + std.toString(tl.is_unsigned_oot_driver),
       'rhui_package_name=' + tl.rhui_package_name,
       'version_lock=' + tl.version_lock,
     ] + (if tl.major_release != '8' then ['is_eus=' + std.toString(tl.is_eus)] else [])
@@ -325,6 +332,7 @@ local imgpublishjob = {
 
   image:: error 'must set image in imgpublishjob',
   image_prefix:: self.image,
+  zone:: get_zone(self.image),
 
   gcs:: 'gs://%s/%s' % [self.gcs_bucket, self.gcs_dir],
   gcs_dir:: error 'must set gcs directory in imgpublishjob',
@@ -429,6 +437,7 @@ local imgpublishjob = {
                 test_projects: tl.cit_test_projects,
                 images: 'projects/bct-prod-images/global/images/%s-((.:publish-version))-dev' % tl.image_prefix,
                 extra_args:: tl.cit_extra_args,
+                zone: tl.zone,
               },
               attempts: 1,
             },
@@ -451,6 +460,7 @@ local imgpublishjob = {
       job: tl.name,
       result_state: 'success',
       start_timestamp: '((.:start-timestamp-ms))',
+      zone: tl.zone,
     },
   },
   on_failure: {
@@ -460,6 +470,7 @@ local imgpublishjob = {
       job: 'publish-to-%s-%s' % [tl.env, tl.image],
       result_state: 'failure',
       start_timestamp: '((.:start-timestamp-ms))',
+      zone: tl.zone,
     },
   },
 };
@@ -485,24 +496,8 @@ local imggroup = {
 {
   local rhel_images = [
     'rhel-10-2-beta',
-    'rhel-10-2-eus',
-    'rhel-10-2-eus-arm64',
-    'rhel-10-2-eus-byos',
-    'rhel-10-2-eus-byos-arm64',
-    'rhel-10-2-eus-lvm',
-    'rhel-10-2-eus-lvm-arm64',
-    'rhel-10-2-eus-lvm-byos',
-    'rhel-10-2-eus-lvm-byos-arm64',
     'rhel-10-2-sap',
     'rhel-10-2-sap-byos',
-    'rhel-9-8-eus',
-    'rhel-9-8-eus-arm64',
-    'rhel-9-8-eus-byos',
-    'rhel-9-8-eus-byos-arm64',
-    'rhel-9-8-eus-lvm',
-    'rhel-9-8-eus-lvm-arm64',
-    'rhel-9-8-eus-lvm-byos',
-    'rhel-9-8-eus-lvm-byos-arm64',
     'rhel-9-8-sap',
     'rhel-9-8-sap-byos',
     ],
